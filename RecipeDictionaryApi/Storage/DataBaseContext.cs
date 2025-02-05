@@ -6,9 +6,11 @@ namespace RecipeDictionaryApi.Storage;
 public class DataBaseContext(DbContextOptions<DataBaseContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Dish> DefaultDishes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(u => u.Id);
+        modelBuilder.Entity<Dish>().HasKey(d => d.Id);
     }
 }

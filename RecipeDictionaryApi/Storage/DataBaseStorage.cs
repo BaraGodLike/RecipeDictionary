@@ -47,4 +47,29 @@ public class DataBaseStorage(DataBaseContext context, PasswordHasher hasher) : I
     {
         return await context.Users.Where(u => u.Name == name).AnyAsync();
     }
+
+    public async Task<List<Dish>> GetDishesLikeName(string name)
+    {
+        return await context.DefaultDishes.Where(d => d.Name.Contains(name)).OrderBy(d => d.Name).ToListAsync();
+    }
+
+    public async Task<bool> AddNewDish(NewDishDto dish)
+    {
+        try
+        {
+            context.DefaultDishes.Add(new Dish
+            {
+                Name = dish.Name,
+                Proteins = dish.Proteins / dish.Weight * 100,
+                Fats = dish.Fats / dish.Weight * 100,
+                Carbohydrates = dish.Carbohydrates / dish.Weight * 100,
+            });
+            await context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
