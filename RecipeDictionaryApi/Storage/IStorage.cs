@@ -8,5 +8,7 @@ public interface IStorage
     Task<User?> Register(UserDto user);
     Task<bool> HasUser(string name);
     Task<List<Dish>> GetDishesLikeName(string name);
+    Task<List<Dish>> GetAllDishes();
     Task<bool> AddNewDish(NewDishDto dish);
+    Task<bool> AcceptNewDish(int id);
 }

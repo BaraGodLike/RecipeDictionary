@@ -24,4 +24,17 @@ public class DishController(IStorage storage) : ControllerBase
         var result = await storage.AddNewDish(dish);
         return Ok(result ? "Added success" : "Oops..");
     }
+
+    [Authorize(Roles = "BaraGodLike")]
+    [HttpPost("{id:int}")]
+    public async Task<IActionResult> AcceptNewDish(int id)
+    {
+        return Ok(await storage.AcceptNewDish(id) ? "Dish's accepted" : "Oops..");
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> GetALlDishes()
+    {
+        return Ok(await storage.GetAllDishes());
+    }
 }

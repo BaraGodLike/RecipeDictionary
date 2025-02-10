@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RecipeDictionaryApi.Services;
 using RecipeDictionaryApi.Storage;
@@ -38,7 +39,12 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<DataBaseContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("BaraGodLike", policy => policy.RequireRole("BaraGodLike"));
 
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
