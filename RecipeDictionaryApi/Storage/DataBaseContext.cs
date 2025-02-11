@@ -22,12 +22,5 @@ public class DataBaseContext(DbContextOptions<DataBaseContext> options) : DbCont
             .HasOne(day => day.User)
             .WithMany()
             .HasForeignKey(day => day.UserId);
-        
-        modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
-        {
-            Id = "0",
-            Name = "BaraGodLike",
-            NormalizedName = "BARAGODLIKE"
-        });
     }
 }

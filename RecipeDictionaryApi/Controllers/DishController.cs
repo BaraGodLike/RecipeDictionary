@@ -25,7 +25,7 @@ public class DishController(IStorage storage) : ControllerBase
         return Ok(result ? "Added success" : "Oops..");
     }
 
-    [Authorize(Roles = "BaraGodLike")]
+    [Authorize(Policy = "BaraGodLike")]
     [HttpPost("{id:int}")]
     public async Task<IActionResult> AcceptNewDish(int id)
     {

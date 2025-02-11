@@ -11,6 +11,7 @@ public class JwtService
     private readonly string _issuer;
     private readonly string _audience;
     private readonly int _expiryInMinutes;
+    private readonly string _admin;
 
     public JwtService(IConfiguration configuration)
     {
@@ -19,6 +20,7 @@ public class JwtService
         _issuer = jwtSettings["Issuer"]!;
         _audience = jwtSettings["Audience"]!;
         _expiryInMinutes = int.Parse(jwtSettings["ExpiryInMinutes"]!);
+        _admin = configuration["admin"]!;
     }
 
     public string GenerateToken(string userId, string username)
@@ -26,12 +28,17 @@ public class JwtService
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId),
-            new Claim(JwtRegisteredClaimNames.UniqueName, username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Sub, userId),
+            new(JwtRegisteredClaimNames.UniqueName, username),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+        
+        if (username.Equals(_admin))
+        {
+            claims.Add(new Claim("BaraGodLike", "true"));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _issuer,

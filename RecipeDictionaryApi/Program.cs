@@ -39,12 +39,10 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<DataBaseContext>()
-    .AddDefaultTokenProviders();
-
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("BaraGodLike", policy => policy.RequireRole("BaraGodLike"));
+    .AddPolicy("BaraGodLike", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c is { Type: "BaraGodLike", Value: "true" })));
 
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
