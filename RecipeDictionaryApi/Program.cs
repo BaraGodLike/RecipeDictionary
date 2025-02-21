@@ -40,9 +40,9 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("BaraGodLike", policy =>
+    .AddPolicy("Admin", policy =>
         policy.RequireAssertion(context =>
-            context.User.HasClaim(c => c is { Type: "BaraGodLike", Value: "true" })));
+            context.User.HasClaim(c => c is { Type: "Admin", Value: "true" })));
 
 builder.Services.AddSwaggerGen();
 var app = builder.Build();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RecipeDictionaryApi.Models;
 using RecipeDictionaryApi.Storage;
 using RecipeDictionaryApi.Services;
@@ -29,7 +30,10 @@ public class UserController(IStorage storage, JwtService jwtService) : Controlle
         {
             return Unauthorized(false);
         }
-        var token = jwtService.GenerateToken(loggedInUser.Id.ToString(), loggedInUser.Name);
+        var token = jwtService.GenerateToken(
+            loggedInUser.Id.ToString(), 
+            loggedInUser.Name, 
+            loggedInUser.IsAdmin);
         return Ok(new { Token = token });
     }
 
@@ -37,5 +41,20 @@ public class UserController(IStorage storage, JwtService jwtService) : Controlle
     public async Task<IActionResult> HasUser(string name)
     {
         return Ok(await storage.HasUser(name));
+    }
+
+    [HttpGet("email/{email}")]
+    public async Task<IActionResult> HasEmail(string email)
+    {
+        return Ok(await storage.HasEmail(email));
+    }
+    
+
+    [Authorize(Policy = "Admin")]
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> MakeAdmin(int id)
+    {
+        if (await storage.MakeAdmin(id)) return Ok();
+        return NotFound();
     }
 }
