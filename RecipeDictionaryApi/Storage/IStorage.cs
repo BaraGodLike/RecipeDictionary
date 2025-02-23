@@ -13,7 +13,9 @@ public interface IStorage
     Task<List<Dish>> GetAllDishes();
     Task<bool> AddNewDish(NewDishDto dish);
     Task<bool> AcceptNewDish(int id);
-    Task<bool> AddNewRecipe(Recipe recipeDto);
+    Task<bool> AddNewRecipe(RecipeDto recipeDto);
     Task<bool> AcceptRecipe(int id);
-    Task<Recipe?> GetRecipeById(int id);
+    Task<RecipeDto?> GetRecipeById(int id);
+    Task<List<RecipeDto>> GetRecipes();
+    Task<List<RecipeDto>> GetRecipesWithFilters(List<int> plusIds, List<int> minusIds);
 }

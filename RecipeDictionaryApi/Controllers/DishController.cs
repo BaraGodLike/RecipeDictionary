@@ -10,26 +10,36 @@ namespace RecipeDictionaryApi.Controllers;
 public class DishController(IStorage storage) : ControllerBase
 {
     [Authorize]
-    [HttpGet("like:{name}")]
+    [HttpGet("like/{name}")]
     public async Task<IActionResult> GetDishesLikeName(string name)
     {
-        var dish = await storage.GetDishesLikeName(name);
-        return dish.Count == 0 ? Ok("Dishes not found") : Ok(dish);
+        var dishes = await storage.GetDishesLikeName(name);
+        return Ok(dishes); 
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddNewDish(NewDishDto dish)
+    public async Task<IActionResult> AddNewDish([FromBody] NewDishDto dish)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var result = await storage.AddNewDish(dish);
-        return Ok(result ? "Added success" : "Oops..");
+        return result 
+            ? Ok("Dish added successfully") 
+            : StatusCode(StatusCodes.Status500InternalServerError, "Failed to add dish");
     }
 
     [Authorize(Policy = "Admin")]
     [HttpPost("{id:int}")]
     public async Task<IActionResult> AcceptNewDish(int id)
     {
-        return Ok(await storage.AcceptNewDish(id) ? "Dish's accepted" : "Oops..");
+        var result = await storage.AcceptNewDish(id);
+        return result 
+            ? Ok("Dish accepted successfully") 
+            : NotFound("Dish not found or already accepted");
     }
     
     [HttpGet]

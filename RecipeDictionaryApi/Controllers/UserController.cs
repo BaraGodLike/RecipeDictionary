@@ -11,29 +11,30 @@ namespace RecipeDictionaryApi.Controllers;
 public class UserController(IStorage storage, JwtService jwtService) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser(UserDto user)
+    public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState); 
+
         var registeredUser = await storage.Register(user);
         if (registeredUser == null)
-        {
-            return NotFound("Oops...");
-        }
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to register user");
         var token = jwtService.GenerateToken(registeredUser.Id.ToString(), registeredUser.Name);
         return Ok(new { Token = token });
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginUser(UserDto user)
+    public async Task<IActionResult> LoginUser([FromBody] UserDto user)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         var loggedInUser = await storage.LoginUser(user);
-        if (loggedInUser == null)
-        {
-            return Unauthorized(false);
-        }
+        if (loggedInUser == null) return Unauthorized("Invalid username or password");
+
         var token = jwtService.GenerateToken(
-            loggedInUser.Id.ToString(), 
-            loggedInUser.Name, 
+            loggedInUser.Id.ToString(),
+            loggedInUser.Name,
             loggedInUser.IsAdmin);
+
         return Ok(new { Token = token });
     }
 
@@ -54,7 +55,6 @@ public class UserController(IStorage storage, JwtService jwtService) : Controlle
     [HttpPut("{id:int}")]
     public async Task<IActionResult> MakeAdmin(int id)
     {
-        if (await storage.MakeAdmin(id)) return Ok();
-        return NotFound();
+        return await storage.MakeAdmin(id) ? Ok("User successfully made admin") : NotFound("User not found");
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-
-namespace RecipeDictionaryApi.Models;
+﻿namespace RecipeDictionaryApi.Models;
 
 public class UserDto
 {

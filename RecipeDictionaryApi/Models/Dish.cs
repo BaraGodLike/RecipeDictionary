@@ -12,6 +12,4 @@ public class Dish
     public float Proteins { get; set; }
     public float Fats { get; set; }
     public float Carbohydrates { get; set; }
-    [NotMapped]
-    public float Weight { get; set; } = 100;
 }
