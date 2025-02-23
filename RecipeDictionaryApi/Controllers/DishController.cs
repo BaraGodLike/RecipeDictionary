@@ -7,7 +7,7 @@ namespace RecipeDictionaryApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DishController(IStorage storage) : ControllerBase
+public class DishController(IDishStorage storage) : ControllerBase
 {
     [Authorize]
     [HttpGet("like/{name}")]

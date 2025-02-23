@@ -8,7 +8,7 @@ namespace RecipeDictionaryApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IStorage storage, JwtService jwtService) : ControllerBase
+public class UserController(IUserStorage storage, JwtService jwtService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
@@ -52,7 +52,7 @@ public class UserController(IStorage storage, JwtService jwtService) : Controlle
     
 
     [Authorize(Policy = "Admin")]
-    [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
     public async Task<IActionResult> MakeAdmin(int id)
     {
         return await storage.MakeAdmin(id) ? Ok("User successfully made admin") : NotFound("User not found");

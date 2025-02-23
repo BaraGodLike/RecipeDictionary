@@ -8,12 +8,12 @@ using RecipeDictionaryApi.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var key = Encoding.UTF8.GetBytes(builder.Configuration["HasherSettings:key"]!);
-builder.Services.AddSingleton(key);
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddDbContext<DataBaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IStorage, DataBaseStorage>(); 
+builder.Services.AddScoped<IUserStorage, UserDbStorage>();
+builder.Services.AddScoped<IDishStorage, DishDbStorage>();
+builder.Services.AddScoped<IRecipeStorage, RecipeDbStorage>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddControllers();
 

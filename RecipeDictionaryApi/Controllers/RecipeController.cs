@@ -7,9 +7,9 @@ namespace RecipeDictionaryApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RecipeController(IStorage storage) : ControllerBase
+public class RecipeController(IRecipeStorage storage) : ControllerBase
 {
-    [HttpGet("get:{id:int}")]
+    [HttpGet("get/{id:int}")]
     public async Task<IActionResult> GetRecipeById(int id)
     {
         var recipe = await storage.GetRecipeById(id);
@@ -30,7 +30,7 @@ public class RecipeController(IStorage storage) : ControllerBase
     }
 
     [Authorize(Policy = "Admin")]
-    [HttpPatch("accept:{id:int}")]
+    [HttpPatch("accept/{id:int}")]
     public async Task<IActionResult> AcceptRecipe(int id)
     {
         return await storage.AcceptRecipe(id) ? Ok() : NotFound("Recipe not found or already accepted");
@@ -43,5 +43,10 @@ public class RecipeController(IStorage storage) : ControllerBase
     {
         return Ok(await storage.GetRecipesWithFilters(plusIds ?? [], minusIds ?? []));
     }
-    
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetRecipes()
+    {
+        return Ok(await storage.GetRecipes());
+    }
 }
