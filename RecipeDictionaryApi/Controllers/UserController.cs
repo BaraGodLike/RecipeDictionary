@@ -8,7 +8,7 @@ namespace RecipeDictionaryApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserStorage storage, JwtService jwtService) : ControllerBase
+public class UserController(IUserStorage storage, JwtService jwtService, EmailService emailService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
@@ -44,10 +44,10 @@ public class UserController(IUserStorage storage, JwtService jwtService) : Contr
         return Ok(await storage.HasUser(name));
     }
 
-    [HttpGet("email/{email}")]
-    public async Task<IActionResult> HasEmail(string email)
+    [HttpPost("email")]
+    public async Task<IActionResult> HasEmail([FromBody] EmailDto email)
     {
-        return Ok(await storage.HasEmail(email));
+        return Ok(await storage.HasEmail(email.Email));
     }
     
 
