@@ -43,14 +43,7 @@ public class UserController(IUserStorage storage, JwtService jwtService) : Contr
     {
         return Ok(await storage.HasUser(name));
     }
-
-    [HttpGet("email/{email}")]
-    public async Task<IActionResult> HasEmail(string email)
-    {
-        return Ok(await storage.HasEmail(email));
-    }
     
-
     [Authorize(Policy = "Admin")]
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> MakeAdmin(int id)

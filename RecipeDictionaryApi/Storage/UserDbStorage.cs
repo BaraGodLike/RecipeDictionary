@@ -31,7 +31,6 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
             {
                 Name = user.Name,
                 Password = hasher.HashPassword(user.Password),
-                Email = user.Email
             });
             await context.SaveChangesAsync();
             return (await context.Users.Where(u => u.Name == user.Name).FirstOrDefaultAsync())!;
@@ -47,18 +46,6 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
         try
         {
             return await context.Users.Where(u => u.Name == name).AnyAsync();
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<bool> HasEmail(string email)
-    {
-        try
-        {
-            return await context.Users.Where(u => u.Email == email).AnyAsync();
         }
         catch
         {
