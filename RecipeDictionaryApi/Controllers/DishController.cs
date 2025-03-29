@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeDictionaryApi.Models;
 using RecipeDictionaryApi.Storage;
@@ -46,5 +47,13 @@ public class DishController(IDishStorage storage) : ControllerBase
     public async Task<IActionResult> GetAllDishes(CancellationToken cancellationToken)
     {
         return Ok(await storage.GetAllDishes(cancellationToken));
+    }
+
+    [Authorize(Policy = "Admin")]
+    [HttpDelete("dev_dish")]
+    public async Task<IActionResult> DeleteDevDish([FromQuery] [Required] int dishId, CancellationToken cancellationToken)
+    {
+        var result = await storage.DeleteFromDevDishes(dishId, cancellationToken);
+        return result == null ? NotFound("The dish with this id does not exist") : Ok(result);
     }
 }

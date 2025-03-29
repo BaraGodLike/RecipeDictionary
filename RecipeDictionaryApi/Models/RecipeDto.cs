@@ -4,6 +4,7 @@ namespace RecipeDictionaryApi.Models;
 
 public class RecipeDto
 {
+    public int Id { get; set; } = -1;
     [Required(ErrorMessage = "Name is required")]
     [Length(2, 30, ErrorMessage = "The length of the name can range from 2 to 30")]
     [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Name can only contain letters, numbers, and spaces")]

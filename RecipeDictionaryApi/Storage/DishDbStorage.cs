@@ -72,4 +72,27 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
             return false;
         }
     }
+
+    public async Task<NewDishDto?> DeleteFromDevDishes(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var dish = await context.DevDishes
+                .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        
+            if (dish == null)
+            {
+                return null;
+            }
+
+            context.DevDishes.Remove(dish);
+            await context.SaveChangesAsync(cancellationToken);
+        
+            return dish;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

@@ -9,4 +9,5 @@ public interface IRecipeStorage
     Task<RecipeDto?> GetRecipeById(int id, CancellationToken cancellationToken);
     Task<List<RecipeDto>> GetRecipes(CancellationToken cancellationToken);
     Task<List<RecipeDto>> GetRecipesWithFilters(List<int> plusIds, List<int> minusIds, CancellationToken cancellationToken);
+    Task<bool> PatchRecipe(RecipeDto recipe, CancellationToken cancellationToken);
 }

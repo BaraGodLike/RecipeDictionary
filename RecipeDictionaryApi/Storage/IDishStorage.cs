@@ -8,4 +8,5 @@ public interface IDishStorage
     Task<List<Dish>> GetAllDishes(CancellationToken cancellationToken);
     Task<bool> AddNewDish(NewDishDto dish, CancellationToken cancellationToken);
     Task<bool> AcceptNewDish(int id, CancellationToken cancellationToken);
+    Task<NewDishDto?> DeleteFromDevDishes(int id, CancellationToken cancellationToken);
 }

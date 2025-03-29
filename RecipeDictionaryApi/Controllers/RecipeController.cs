@@ -50,4 +50,14 @@ public class RecipeController(IRecipeStorage storage) : ControllerBase
     {
         return Ok(await storage.GetRecipes(cancellationToken));
     }
+
+    [Authorize(Policy = "Admin")]
+    [HttpPatch("update_recipe")]
+    public async Task<IActionResult> PatchRecipe([FromBody] RecipeDto recipe, CancellationToken cancellationToken)
+    {
+        if (recipe.Id < 0) return BadRequest("Impossible id");
+
+        if (await storage.PatchRecipe(recipe, cancellationToken)) return Ok("Recipe is updated");
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
 }

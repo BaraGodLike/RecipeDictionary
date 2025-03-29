@@ -54,6 +54,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                 .Where(r => r.Id == id)
                 .Select(r => new RecipeDto
                 {
+                    Id = r.Id,
                     Name = r.Name,
                     Photo = r.Photo,
                     Text = r.Text,
@@ -83,6 +84,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
             return await context.Recipes
                 .Select(r => new RecipeDto
                 {
+                    Id = r.Id,
                     Name = r.Name,
                     Photo = r.Photo,
                     Text = r.Text,
@@ -116,6 +118,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                 )
                 .Select(r => new RecipeDto
                 {
+                    Id = r.Id,
                     Name = r.Name,
                     Photo = r.Photo,
                     Text = r.Text,
@@ -135,6 +138,40 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
         catch
         {
             return [];
+        }
+    }
+
+    public async Task<bool> PatchRecipe(RecipeDto recipe, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var oldRecipe = await context.Recipes
+                .Include(r => r.RecipeDishes)
+                .FirstOrDefaultAsync(r => r.Id == recipe.Id, cancellationToken);
+
+            if (oldRecipe == null)
+            {
+                return false;
+            }
+            
+            oldRecipe.Name = recipe.Name;
+            oldRecipe.Photo = recipe.Photo;
+            oldRecipe.Text = recipe.Text;
+            oldRecipe.IdAuthor = recipe.IdAuthor;
+            
+            context.RecipeDishes.RemoveRange(oldRecipe.RecipeDishes);
+            
+            oldRecipe.RecipeDishes = recipe.Dishes.Select(dish => new RecipeDish
+            {
+                DishId = dish.Id,
+                Grams = dish.Weight
+            }).ToList();
+            
+            return await context.SaveChangesAsync(cancellationToken) > 0;
+        }
+        catch
+        {
+            return false;
         }
     }
 }
