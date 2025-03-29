@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using RecipeDictionaryApi.Middleware;
 using RecipeDictionaryApi.Services;
 using RecipeDictionaryApi.Storage;
 
@@ -55,6 +56,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<ExceptionHandler>();
 app.MapControllers();
 
 app.Run();
