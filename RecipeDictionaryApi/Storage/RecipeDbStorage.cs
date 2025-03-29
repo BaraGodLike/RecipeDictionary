@@ -5,7 +5,7 @@ namespace RecipeDictionaryApi.Storage;
 
 public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
 {
-    public async Task<bool> AddNewRecipe(RecipeDto recipeDto)
+    public async Task<bool> AddNewRecipe(RecipeDto recipeDto, CancellationToken cancellationToken)
     {
         try
         {
@@ -22,7 +22,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                     Grams = dish.Weight
                 }).ToList()
             });
-            return await context.SaveChangesAsync() > 0;
+            return await context.SaveChangesAsync(cancellationToken) > 0;
         }
         catch
         {
@@ -30,14 +30,15 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
         }
     }
 
-    public async Task<bool> AcceptRecipe(int id)
+    public async Task<bool> AcceptRecipe(int id, CancellationToken cancellationToken)
     {
         try
         {
             return await context.Recipes
                 .Where(r => r.Id == id)
                 .ExecuteUpdateAsync(setters => 
-                    setters.SetProperty(r => r.IsConfirmed, true)) > 0;
+                    setters.SetProperty(r => r.IsConfirmed, true),
+                    cancellationToken) > 0;
         }
         catch
         {
@@ -45,7 +46,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
         }
     }
 
-    public async Task<RecipeDto?> GetRecipeById(int id)
+    public async Task<RecipeDto?> GetRecipeById(int id, CancellationToken cancellationToken)
     {
         try
         {
@@ -67,7 +68,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                         Weight = rd.Grams
                     }).ToList()
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
         }
         catch
         {
@@ -75,7 +76,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
         }
     }
 
-    public async Task<List<RecipeDto>> GetRecipes()
+    public async Task<List<RecipeDto>> GetRecipes(CancellationToken cancellationToken)
     {
         try
         {
@@ -96,7 +97,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                         Weight = rd.Grams
                     }).ToList()
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
         catch
         {
@@ -104,7 +105,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
         }
     }
 
-    public async Task<List<RecipeDto>> GetRecipesWithFilters(List<int> plusIds, List<int> minusIds)
+    public async Task<List<RecipeDto>> GetRecipesWithFilters(List<int> plusIds, List<int> minusIds, CancellationToken cancellationToken)
     {
         try
         {
@@ -129,7 +130,7 @@ public class RecipeDbStorage(DataBaseContext context) : IRecipeStorage
                         Weight = rd.Grams
                     }).ToList()
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
         catch
         {

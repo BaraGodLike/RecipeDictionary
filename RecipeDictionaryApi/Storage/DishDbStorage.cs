@@ -5,11 +5,14 @@ namespace RecipeDictionaryApi.Storage;
 
 public class DishDbStorage(DataBaseContext context) : IDishStorage
 {
-    public async Task<List<Dish>> GetDishesLikeName(string name)
+    public async Task<List<Dish>> GetDishesLikeName(string name, CancellationToken cancellationToken)
     {
         try
         {
-            return await context.DefaultDishes.Where(d => d.Name.Contains(name)).OrderBy(d => d.Name).ToListAsync();
+            return await context.DefaultDishes
+                .Where(d => d.Name.Contains(name))
+                .OrderBy(d => d.Name)
+                .ToListAsync(cancellationToken);
         }
         catch
         {
@@ -17,11 +20,13 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
         }
     }
 
-    public async Task<List<Dish>> GetAllDishes()
+    public async Task<List<Dish>> GetAllDishes(CancellationToken cancellationToken)
     {
         try
         {
-            return await context.DefaultDishes.OrderBy(d => d.Name).ToListAsync();
+            return await context.DefaultDishes
+                .OrderBy(d => d.Name)
+                .ToListAsync(cancellationToken);
         }
         catch
         {
@@ -29,12 +34,12 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
         }
     }
     
-    public async Task<bool> AddNewDish(NewDishDto dish)
+    public async Task<bool> AddNewDish(NewDishDto dish, CancellationToken cancellationToken)
     {
         try
         {
             context.DevDishes.Add(dish);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch
@@ -43,7 +48,7 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
         }
     }
 
-    public async Task<bool> AcceptNewDish(int id)
+    public async Task<bool> AcceptNewDish(int id, CancellationToken cancellationToken)
     {
         try
         {
@@ -56,10 +61,10 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
                     Fats = d.Fats / d.Weight * 100,
                     Carbohydrates = d.Carbohydrates / d.Weight * 100,
                 })
-                .FirstAsync();
+                .FirstAsync(cancellationToken);
             
             context.DefaultDishes.Add(dish);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch
@@ -67,6 +72,4 @@ public class DishDbStorage(DataBaseContext context) : IDishStorage
             return false;
         }
     }
-
-    
 }

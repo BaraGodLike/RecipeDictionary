@@ -6,14 +6,15 @@ namespace RecipeDictionaryApi.Storage;
 
 public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUserStorage
 {
-    public async Task<User?> LoginUser(UserDto user)
+    public async Task<User?> LoginUser(UserDto user, CancellationToken cancellationToken)
     {
         try
         {
             var dbUser = await context.Users
-                .FirstOrDefaultAsync(u => u.Name == user.Name);
+                .FirstOrDefaultAsync(u => u.Name == user.Name, cancellationToken);
 
-            if (dbUser != null && hasher.VerifyPassword(user.Password, dbUser.Password)) return dbUser;
+            if (dbUser != null && hasher.VerifyPassword(user.Password, dbUser.Password)) 
+                return dbUser;
             
             return null;
         }
@@ -23,7 +24,7 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
         }
     }
 
-    public async Task<User?> Register(UserDto user)
+    public async Task<User?> Register(UserDto user, CancellationToken cancellationToken)
     {
         try
         {
@@ -32,8 +33,10 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
                 Name = user.Name,
                 Password = hasher.HashPassword(user.Password),
             });
-            await context.SaveChangesAsync();
-            return (await context.Users.Where(u => u.Name == user.Name).FirstOrDefaultAsync())!;
+            await context.SaveChangesAsync(cancellationToken);
+            return (await context.Users
+                .Where(u => u.Name == user.Name)
+                .FirstOrDefaultAsync(cancellationToken))!;
         }
         catch
         {
@@ -41,11 +44,13 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
         }
     }
 
-    public async Task<bool> HasUser(string name)
+    public async Task<bool> HasUser(string name, CancellationToken cancellationToken)
     {
         try
         {
-            return await context.Users.Where(u => u.Name == name).AnyAsync();
+            return await context.Users
+                .Where(u => u.Name == name)
+                .AnyAsync(cancellationToken);
         }
         catch
         {
@@ -53,15 +58,19 @@ public class UserDbStorage(DataBaseContext context, PasswordHasher hasher) : IUs
         }
     }
     
-    public async Task<bool> MakeAdmin(int id)
+    public async Task<bool> MakeAdmin(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var user = await context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
-            if (user == null) return false;
+            var user = await context.Users
+                .Where(u => u.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
+                
+            if (user == null) 
+                return false;
             
             user.IsAdmin = true;
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch

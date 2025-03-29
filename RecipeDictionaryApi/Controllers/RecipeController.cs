@@ -10,43 +10,44 @@ namespace RecipeDictionaryApi.Controllers;
 public class RecipeController(IRecipeStorage storage) : ControllerBase
 {
     [HttpGet("get/{id:int}")]
-    public async Task<IActionResult> GetRecipeById(int id)
+    public async Task<IActionResult> GetRecipeById(int id, CancellationToken cancellationToken)
     {
-        var recipe = await storage.GetRecipeById(id);
+        var recipe = await storage.GetRecipeById(id, cancellationToken);
         return recipe != null ? Ok(recipe) : NotFound();
     }
 
     [Authorize]
     [HttpPost("add")]
-    public async Task<IActionResult> AddNewRecipe([FromBody] RecipeDto recipe)
+    public async Task<IActionResult> AddNewRecipe([FromBody] RecipeDto recipe, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var result = await storage.AddNewRecipe(recipe);
+        var result = await storage.AddNewRecipe(recipe, cancellationToken);
         return result ? Ok() : StatusCode(StatusCodes.Status500InternalServerError, "Failed to add recipe");
     }
 
     [Authorize(Policy = "Admin")]
     [HttpPatch("accept/{id:int}")]
-    public async Task<IActionResult> AcceptRecipe(int id)
+    public async Task<IActionResult> AcceptRecipe(int id, CancellationToken cancellationToken)
     {
-        return await storage.AcceptRecipe(id) ? Ok() : NotFound("Recipe not found or already accepted");
+        return await storage.AcceptRecipe(id, cancellationToken) ? Ok() : NotFound("Recipe not found or already accepted");
     }
 
     [HttpGet("get_with_filters")]
     public async Task<IActionResult> GetRecipesWithFilters(
         [FromQuery] List<int>? plusIds, 
-        [FromQuery] List<int>? minusIds)
+        [FromQuery] List<int>? minusIds, 
+        CancellationToken cancellationToken)
     {
-        return Ok(await storage.GetRecipesWithFilters(plusIds ?? [], minusIds ?? []));
+        return Ok(await storage.GetRecipesWithFilters(plusIds ?? [], minusIds ?? [], cancellationToken));
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetRecipes()
+    public async Task<IActionResult> GetRecipes(CancellationToken cancellationToken)
     {
-        return Ok(await storage.GetRecipes());
+        return Ok(await storage.GetRecipes(cancellationToken));
     }
 }
