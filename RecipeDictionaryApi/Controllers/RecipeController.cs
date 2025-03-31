@@ -26,14 +26,14 @@ public class RecipeController(IRecipeStorage storage) : ControllerBase
         }
 
         var result = await storage.AddNewRecipe(recipe, cancellationToken);
-        return result ? Ok() : StatusCode(StatusCodes.Status500InternalServerError, "Failed to add recipe");
+        return result ? Ok() : StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Failed to add recipe"});
     }
 
     [Authorize(Policy = "Admin")]
     [HttpPatch("accept/{id:int}")]
     public async Task<IActionResult> AcceptRecipe(int id, CancellationToken cancellationToken)
     {
-        return await storage.AcceptRecipe(id, cancellationToken) ? Ok() : NotFound("Recipe not found or already accepted");
+        return await storage.AcceptRecipe(id, cancellationToken) ? Ok() : NotFound(new { Message = "Recipe not found or already accepted"});
     }
 
     [HttpGet("get_with_filters")]
@@ -55,9 +55,9 @@ public class RecipeController(IRecipeStorage storage) : ControllerBase
     [HttpPatch("update_recipe")]
     public async Task<IActionResult> PatchRecipe([FromBody] RecipeDto recipe, CancellationToken cancellationToken)
     {
-        if (recipe.Id < 0) return BadRequest("Impossible id");
+        if (recipe.Id < 0) return BadRequest(new { Message = "Impossible id"});
 
-        if (await storage.PatchRecipe(recipe, cancellationToken)) return Ok("Recipe is updated");
+        if (await storage.PatchRecipe(recipe, cancellationToken)) return Ok(new { Message = "Recipe is updated"});
         return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

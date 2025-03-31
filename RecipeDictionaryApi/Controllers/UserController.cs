@@ -23,7 +23,16 @@ public class UserController(IUserStorage storage, JwtService jwtService) : Contr
             return StatusCode(StatusCodes.Status500InternalServerError, "Failed to register user");
         
         var token = jwtService.GenerateToken(registeredUser.Id.ToString(), registeredUser.Name);
-        return Ok(new { Token = token });
+        
+        Response.Cookies.Append("jwt", token, new CookieOptions
+        {
+            HttpOnly = true, 
+            Secure = false, // ПОМЕНЯТЬ 
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(1)
+        });
+        
+        return Ok(new { Message = "User registered successfully" });
     }
 
     [HttpPost("login")]
@@ -36,14 +45,30 @@ public class UserController(IUserStorage storage, JwtService jwtService) : Contr
 
         var loggedInUser = await storage.LoginUser(user, cancellationToken);
         if (loggedInUser == null) 
-            return Unauthorized("Invalid username or password");
+            return Unauthorized(new { Message = "Invalid username or password"});
 
         var token = jwtService.GenerateToken(
             loggedInUser.Id.ToString(),
             loggedInUser.Name,
             loggedInUser.IsAdmin);
+        
+        Response.Cookies.Append("jwt", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false, // ПОМЕНЯТЬ
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(1)
+        });
 
-        return Ok(new { Token = token });
+        return Ok(new { Message = "Logged in successfully" });
+    }
+    
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt");
+        return Ok(new { Message = "Logged out successfully" });
     }
 
     [HttpGet("{name}")]
@@ -61,7 +86,7 @@ public class UserController(IUserStorage storage, JwtService jwtService) : Contr
         CancellationToken cancellationToken)
     {
         return await storage.MakeAdmin(id, cancellationToken) 
-            ? Ok("User successfully made admin") 
-            : NotFound("User not found");
+            ? Ok(new { Message = "User successfully made admin"}) 
+            : NotFound(new { Message = "User not found"});
     }
 }

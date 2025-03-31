@@ -29,8 +29,8 @@ public class DishController(IDishStorage storage) : ControllerBase
 
         var result = await storage.AddNewDish(dish, cancellationToken);
         return result 
-            ? Ok("Dish added successfully") 
-            : StatusCode(StatusCodes.Status500InternalServerError, "Failed to add dish");
+            ? Ok(new { Message = "Dish added successfully"}) 
+            : StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Failed to add dish"});
     }
 
     [Authorize(Policy = "Admin")]
@@ -39,8 +39,8 @@ public class DishController(IDishStorage storage) : ControllerBase
     {
         var result = await storage.AcceptNewDish(id, cancellationToken);
         return result 
-            ? Ok("Dish accepted successfully") 
-            : NotFound("Dish not found or already accepted");
+            ? Ok(new { Message = "Dish accepted successfully"}) 
+            : NotFound(new { Message = "Dish not found or already accepted"});
     }
     
     [HttpGet]
@@ -54,6 +54,6 @@ public class DishController(IDishStorage storage) : ControllerBase
     public async Task<IActionResult> DeleteDevDish([FromQuery] [Required] int dishId, CancellationToken cancellationToken)
     {
         var result = await storage.DeleteFromDevDishes(dishId, cancellationToken);
-        return result == null ? NotFound("The dish with this id does not exist") : Ok(result);
+        return result == null ? NotFound(new { Message = "The dish with this id does not exist"}) : Ok(result);
     }
 }
