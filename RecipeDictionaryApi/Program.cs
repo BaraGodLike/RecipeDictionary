@@ -47,11 +47,24 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (args.Contains("--migrate"))
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ошибка при применении миграций");
+        throw;
+    }
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -59,4 +72,4 @@ app.UseAuthorization();
 app.UseMiddleware<ExceptionHandler>();
 app.MapControllers();
 
-app.Run();
+app.Run("http://0.0.0.0:80");
