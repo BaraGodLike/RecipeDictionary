@@ -8,6 +8,9 @@ using RecipeDictionaryApi.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("Yarp"));
+
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddDbContext<DataBaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -45,6 +48,8 @@ builder.Services.AddAuthorizationBuilder()
             context.User.HasClaim(c => c is { Type: "Admin", Value: "true" })));
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
+builder.WebHost.UseUrls("http://*:80");
 var app = builder.Build();
 
 if (args.Contains("--migrate"))
@@ -66,10 +71,25 @@ if (args.Contains("--migrate"))
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionHandler>();
-app.MapControllers();
 
-app.Run("http://0.0.0.0:80");
+app.Use(async (context, next) =>
+{
+    var podName = Environment.GetEnvironmentVariable("POD_NAME") ?? 
+                  Environment.MachineName ?? 
+                  Guid.NewGuid().ToString("N")[..8];
+    
+    context.Response.Headers.Append("X-Backend-Instance", podName);
+    await next();
+});
+
+app.MapReverseProxy();
+app.MapControllers();
+app.MapHealthChecks("/health");
+
+app.Run();

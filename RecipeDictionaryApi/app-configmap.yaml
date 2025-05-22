@@ -1,0 +1,35 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  appsettings.json: |
+    {
+      "Yarp": {
+        "Routes": {
+          "apiRoute": {
+            "ClusterId": "appCluster",
+            "Match": {
+              "Path": "/api/{**catch-all}"
+            }
+          }
+        },
+        "Clusters": {
+          "appCluster": {
+            "LoadBalancingPolicy": "RoundRobin",
+            "Destinations": {
+              "appCluster/destination": {
+                "Address": "http://app-service"  
+              }
+            },
+            "HealthCheck": {
+              "Active": {
+                "Enabled": true,
+                "Interval": "00:00:10",
+                "Path": "/health"
+              }
+            }
+          }
+        }
+      }
+    }
